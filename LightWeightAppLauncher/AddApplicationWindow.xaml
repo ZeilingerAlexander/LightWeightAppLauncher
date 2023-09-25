@@ -1,0 +1,81 @@
+﻿<Window x:Class="LightWeightAppLauncher.AddApplicationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LightWeightAppLauncher"
+        mc:Ignorable="d"
+        Title="AddApplicationWindow" Height="120" Width="300" WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+    <Border CornerRadius="5" Background="{StaticResource Color_Background2}" BorderThickness="2" BorderBrush="{StaticResource Color_Border2}"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.4*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="0.1*"/>
+                    <ColumnDefinition Width="0.1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox>
+                    <TextBlock Foreground="{StaticResource Color_TextNormal}">Add Application</TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Column="2">
+                    <TextBlock Style="{StaticResource Textblock_ExitButton}" PreviewMouseDown="ExitClick"/>
+                </Viewbox>
+                <Viewbox Grid.Column="1">
+                    <TextBlock Style="{StaticResource Textblock_ConfirmButton}" PreviewMouseDown="ConfirmClick"/>
+                </Viewbox>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.8*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="0.2*"/>
+                    </Grid.ColumnDefinitions>
+                    <Viewbox Height="20">
+                        <TextBlock Foreground="{StaticResource Color_TextNormal}">Application Path</TextBlock>
+                    </Viewbox>
+                    <Border Grid.Column="1" Style="{StaticResource DefaultButton_Border}" PreviewMouseDown="ChooseApplicationPath">
+                        <Viewbox>
+                            <TextBlock Margin="2">
+                                choose
+                            </TextBlock>
+                        </Viewbox>
+                    </Border>
+                    <Viewbox Grid.Column="2">
+                        <TextBlock x:Name="UserInputValidationAppPath" Foreground="{StaticResource Color_TextInvalid}">❗</TextBlock>
+                    </Viewbox>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.8*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="0.2*"/>
+                    </Grid.ColumnDefinitions>
+                    <Viewbox Height="20">
+                        <TextBlock Foreground="{StaticResource Color_TextNormal}">Image Path</TextBlock>
+                    </Viewbox>
+                    <Border Grid.Column="1" Style="{StaticResource DefaultButton_Border}" PreviewMouseDown="ChooseImagePath">
+                        <Viewbox>
+                            <TextBlock Margin="2">
+                choose
+                            </TextBlock>
+                        </Viewbox>
+                    </Border>
+                    <Viewbox Grid.Column="2">
+                        <TextBlock x:Name="UserInputValidationImagePath" Foreground="{StaticResource Color_TextInvalid}">❗</TextBlock>
+                    </Viewbox>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

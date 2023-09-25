@@ -5,8 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LightWeightAppLauncher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="450" Width="800" AllowsTransparency="True" WindowStyle="None" Background="Transparent" MouseLeftButtonDown="Window_DragMoveOnMouseDown">
+    <Border CornerRadius="5" Background="{StaticResource Color_Background}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <!--Main Top Info Grid-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="0.1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox>
+                    <TextBlock Foreground="{StaticResource Color_TextNormal}">App Launcher</TextBlock>
+                </Viewbox>
 
-    </Grid>
+                <!--Search-->
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="0.1*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Style="{StaticResource Textbox_Input}">Search App</TextBox>
+                    <Viewbox Grid.Column="1">
+                        <TextBlock Style="{StaticResource Textblock_SearchButton}"></TextBlock>
+                    </Viewbox>
+                </Grid>
+
+                <!--Close Button-->
+                <Viewbox Grid.Column="2">
+                    <TextBlock Style="{StaticResource Textblock_ExitButton}" PreviewMouseDown="CloseWindow"/>
+                </Viewbox>
+                
+            </Grid>
+            
+            <!--Application View-->
+            <WrapPanel Grid.Row="1" x:Name="ApplicationPanel">
+                
+            </WrapPanel>
+        </Grid>
+    </Border>
 </Window>
