@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LightWeightAppLauncher"
         mc:Ignorable="d"
-        Title="AddApplicationWindow" Height="120" Width="300" WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+        Title="AddApplicationWindow" Height="160" Width="300" WindowStyle="None" AllowsTransparency="True" Background="Transparent" PreviewKeyDown="Window_PreviewKeyDown">
     <Border CornerRadius="5" Background="{StaticResource Color_Background2}" BorderThickness="2" BorderBrush="{StaticResource Color_Border2}"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.4*"/>
+                <RowDefinition Height="0.3*"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid>
@@ -34,6 +34,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -55,7 +56,7 @@
                         <TextBlock x:Name="UserInputValidationAppPath" Foreground="{StaticResource Color_TextInvalid}">❗</TextBlock>
                     </Viewbox>
                 </Grid>
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.8*"/>
                         <ColumnDefinition/>
@@ -73,6 +74,25 @@
                     </Border>
                     <Viewbox Grid.Column="2">
                         <TextBlock x:Name="UserInputValidationImagePath" Foreground="{StaticResource Color_TextInvalid}">❗</TextBlock>
+                    </Viewbox>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.8*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="0.2*"/>
+                    </Grid.ColumnDefinitions>
+                    <Viewbox Height="20">
+                        <TextBlock Foreground="{StaticResource Color_TextNormal}">Keybind </TextBlock>
+                    </Viewbox>
+                    <Border Grid.Column="1" x:Name="ChooseKeyBindButton" Style="{StaticResource DefaultButton_Border}" PreviewMouseDown="ChooseKeybind">
+                        <Viewbox>
+                            <TextBlock x:Name="ChooskeKeybindButtonText" Margin="2">choose
+                            </TextBlock>
+                        </Viewbox>
+                    </Border>
+                    <Viewbox Grid.Column="2">
+                        <TextBlock x:Name="Keybind" Foreground="{StaticResource Color_TextHighlited}">❗</TextBlock>
                     </Viewbox>
                 </Grid>
             </Grid>

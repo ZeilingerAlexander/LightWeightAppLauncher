@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace LightWeightAppLauncher
 {
@@ -10,11 +11,18 @@ namespace LightWeightAppLauncher
     /// </summary>
     public partial class ApplicationItemView : Grid
     {
-        public ApplicationItemView(string Source, string ImagePath)
+        public ApplicationItemView(string Source, string ImagePath, string Keybind)
         {
             InitializeComponent();
             AppName.Text = Source.Split("\\").Last();
-            AppImage.Source = Converter.ConvertStringToImageSource(ImagePath);
+            if (ImagePath == MainWindow._defaultImagePath)
+            {
+                AppImage.Source = new BitmapImage(new Uri(ImagePath));
+            }
+            else
+            {
+                AppImage.Source = Converter.ConvertStringToImageSource(ImagePath);
+            }
         }
         public event EventHandler app_OpenApp;
         public event EventHandler app_OpenContextMenu;

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,23 +14,86 @@ namespace LightWeightAppLauncher
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Contains all keybinds with their app paths, dont directly modify this, only on loading
+        /// </summary>
+        Dictionary<string, string> AllKeybindsWithAppPaths = new Dictionary<string, string>();
+        /// <summary>
+        /// Contains all ids and their source paths
+        /// </summary>
         Dictionary<int, string> AllSourcePaths = new Dictionary<int, string>();
         static readonly string _DirectoryConfigPath = Directory.GetCurrentDirectory().ToString() + "\\HV_AppLauncher";
-        static readonly string _configPath = _DirectoryConfigPath + "\\config.hv";
+        public static readonly string _defaultImagePath = "pack://application:,,,/Images/default.png";
+        public static readonly string _configPath = _DirectoryConfigPath + "\\config.hv";
+        public static readonly string _DefaultConfigEmptyString = "NONE";
         public MainWindow()
         {
             InitializeComponent();
             ValidateConfigFile();
             LoadConfig();
             LoadAllApps();
+
+
+            // Thread for launching with keybinds
+            new Thread(CheckKeyBinds).Start();
         }
+
+        void CheckKeyBinds()
+        {
+            /// <summary>
+            /// Checks if any key is pressed and puts that into a list
+            /// </summary>
+            /// <returns></returns>
+            List<Key> IsAnyKeyPressed()
+            {
+                var allPossibleKeys = Enum.GetValues(typeof(Key));
+                List<Key> results = new List<Key>();
+                foreach (var currentKey in allPossibleKeys)
+                {
+                    Key key = (Key)currentKey;
+                    if (key != Key.None)
+                    {
+                        // Use Dispatcher to invoke on the UI thread
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            if (Keyboard.IsKeyDown((Key)currentKey))
+                            {
+                                results.Add((Key)currentKey);
+                            }
+                        });
+                    }
+                }
+                return results;
+            }
+
+            while (true)
+            {
+                List<Key> keys = IsAnyKeyPressed();
+                if (keys.Count != 0)
+                {
+                    if (keys[0] == Key.Escape)
+                    {
+                        this.Close();
+                    }
+                    // Use Dispatcher to invoke on the UI thread
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StartProccess(AllKeybindsWithAppPaths.GetValueOrDefault(keys[0].ToString()));
+                    });
+                }
+            }
+
+        }
+
         void LoadConfig()
         {
             AllSourcePaths.Clear();
+            AllKeybindsWithAppPaths.Clear();
             int CurrentIndex = 0;
             foreach (string str in File.ReadLines(_configPath))
             {
                 AllSourcePaths.Add(CurrentIndex, str);
+                AllKeybindsWithAppPaths.Add(str.Split('|')[2], str.Split('|')[0]);
                 CurrentIndex++;
             }
         }
@@ -36,36 +101,63 @@ namespace LightWeightAppLauncher
         {
             File.WriteAllLines(_configPath, AllSourcePaths.Values);
         }
+        /// <summary>
+        /// Updates config and view by first wrting config then loading all apps
+        /// </summary>
+        void UpdateConfigAndView()
+        {
+            WriteConfig();
+            LoadConfig();
+            LoadAllApps();
+        }
         void LoadAllApps()
         {
             ApplicationPanel.Children.Clear();
             foreach (KeyValuePair<int, string> ID_PathAndImage in AllSourcePaths)
             {
+                // Get Variables
                 string[] SplittedPathAndImage = ID_PathAndImage.Value.Split('|');
                 string App_Path = SplittedPathAndImage[0];
                 string App_ImagePath = SplittedPathAndImage[1];
-                ApplicationItemView applicationView = new ApplicationItemView(App_Path, App_ImagePath);
+                string Keybind = SplittedPathAndImage[2];
+
+                // Create App View
+                ApplicationItemView applicationView = new ApplicationItemView(App_Path, App_ImagePath, Keybind);
                 applicationView.Tag = ID_PathAndImage.Key;
                 applicationView.app_OpenApp += OpenApplicationClick;
                 applicationView.app_OpenContextMenu += OpenApplicationContextMenuClick;
+
+                // Add Context Menu for deletion
                 MenuItem dltMenuItem = new MenuItem();
                 dltMenuItem.Header = "Delete";
                 dltMenuItem.Tag = ID_PathAndImage.Key;
                 dltMenuItem.Click += DeleteAppClick;
                 applicationView.ContextMenu = new ContextMenu();
                 applicationView.ContextMenu.Items.Add(dltMenuItem);
+
+
                 ApplicationPanel.Children.Add(applicationView);
             }
         }
 
+        /// <summary>
+        /// Whenever delete click in context menu delete that app
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteAppClick(object sender, RoutedEventArgs e)
         {
             string ID = (sender as FrameworkElement).Tag.ToString();
             AllSourcePaths.Remove(int.Parse(ID));
-            WriteConfig();
-            LoadAllApps();
+            UpdateConfigAndView();
         }
 
+        /// <summary>
+        /// Opens Context Menu for given Application on right click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="InvalidDataException"></exception>
         private void OpenApplicationContextMenuClick(object? sender, System.EventArgs e)
         {
             ApplicationItemView appview = sender as ApplicationItemView;
@@ -76,13 +168,28 @@ namespace LightWeightAppLauncher
             appview.ContextMenu.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Starts a given process
+        /// </summary>
+        void StartProccess(string path)
+        {
+            try
+            {
+                Process.Start(path);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message + "\n" + ex.StackTrace + "\n" + ex.Source + "\n" + ex.Data);
+            }
+        }
+
         private void OpenApplicationClick(object? sender, System.EventArgs e)
         {
             string ProcessPath = AllSourcePaths.ElementAt(
                     int.Parse((sender as FrameworkElement).Tag.ToString())
                         ).Value.Split('|')[0];
 
-            Process.Start(ProcessPath);
+            StartProccess(ProcessPath);
         }
 
         /// <summary>
@@ -115,6 +222,11 @@ namespace LightWeightAppLauncher
             addApplicationWindow.Show();
         }
 
+        /// <summary>
+        /// Adds a new app from the options user chose in sender
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddNewApp_Save(object? sender, System.EventArgs e)
         {
             AddApplicationWindow? wd = sender as AddApplicationWindow;
@@ -122,9 +234,8 @@ namespace LightWeightAppLauncher
             {
                 return;
             }
-            AllSourcePaths.Add(AllSourcePaths.ToArray().Length, wd.UserInput_AppSource + "|" + wd.UserInput_ImageSource);
-            WriteConfig();
-            LoadAllApps();
+            AllSourcePaths.Add(AllSourcePaths.ToArray().Length, wd.UserInput_AppSource + "|" + wd.UserInput_ImageSource + "|" + wd.UserInput_Keybind);
+            UpdateConfigAndView();
         }
 
         private void Window_DragMoveOnMouseDown(object sender, MouseButtonEventArgs e)

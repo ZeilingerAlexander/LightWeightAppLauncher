@@ -13,6 +13,7 @@ namespace LightWeightAppLauncher
     {
         public string? UserInput_ImageSource = null;
         public string? UserInput_AppSource = null;
+        public string? UserInput_Keybind = null;
 
         public event EventHandler Save;
 
@@ -20,6 +21,8 @@ namespace LightWeightAppLauncher
         private readonly Brush _UserInputOkColor = (Brush)new BrushConverter().ConvertFromString("#2ecc71");
         private readonly string _UserInputMissing = "❗";
         private readonly Brush _UserInputMissingColor = (Brush)new BrushConverter().ConvertFromString("#e74c3c");
+
+        bool ListeningForKey = false;
 
         public AddApplicationWindow()
         {
@@ -40,9 +43,17 @@ namespace LightWeightAppLauncher
             {
                 return;
             }
-            if (UserInput_AppSource == null || UserInput_ImageSource == null)
+            if (UserInput_AppSource == null)
             {
                 return;
+            }
+            if (UserInput_ImageSource == null)
+            {
+                UserInput_ImageSource = MainWindow._defaultImagePath;
+            }
+            if (UserInput_Keybind == null)
+            {
+                UserInput_Keybind = MainWindow._DefaultConfigEmptyString;
             }
             Save?.Invoke(this, e);
             this.Close();
@@ -106,6 +117,26 @@ namespace LightWeightAppLauncher
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.DragMove();
+        }
+
+        private void ChooseKeybind(object sender, MouseButtonEventArgs e)
+        {
+            ListeningForKey = true;
+            ChooskeKeybindButtonText.Text = "listening...";
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!ListeningForKey) { return; }
+            if (e.Key == Key.Escape)
+            {
+                MessageBox.Show("Key Cant be escape since escape is used for closing the program.");
+                return;
+            }
+            UserInput_Keybind = e.Key.ToString();
+            Keybind.Text = UserInput_Keybind;
+            ListeningForKey = false;
+            ChooskeKeybindButtonText.Text = "choose";
         }
     }
 }
