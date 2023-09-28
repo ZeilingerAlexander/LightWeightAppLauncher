@@ -6,6 +6,8 @@
     <SolidColorBrush x:Key="Color_Border2" Color="#8e44ad"/>
     <SolidColorBrush x:Key="Color_TextNormal" Color="#ecf0f1"/>
     <SolidColorBrush x:Key="Color_TextImportant" Color="#2ecc71"/>
+    <SolidColorBrush x:Key="Color_TextImportant2" Color="#27ae60"/>
+    <SolidColorBrush x:Key="Color_TextHighlited" Color="#1abc9c"/>
     <SolidColorBrush x:Key="Color_TextInvalid" Color="#e74c3c"/>
     <SolidColorBrush x:Key="Color_TextHover" Color="#3498db"/>
     <Style x:Key="Textbox_Input" TargetType="TextBox">
@@ -15,6 +17,16 @@
     <Style x:Key="Textblock_SearchButton" TargetType="TextBlock">
         <Setter Property="Text" Value="🔍"/>
         <Setter Property="Foreground" Value="{StaticResource Color_TextImportant}"/>
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource Color_TextHover}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Textblock_PlusButton" TargetType="TextBlock">
+        <Setter Property="Text" Value="➕"/>
+        <Setter Property="Foreground" Value="{StaticResource Color_TextHighlited}"/>
 
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">

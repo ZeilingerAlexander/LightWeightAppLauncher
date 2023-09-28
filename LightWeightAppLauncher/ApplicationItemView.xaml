@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LightWeightAppLauncher"
         mc:Ignorable="d"
-        Height="100" Width="100" Background="#34495e" PreviewMouseDown="Grid_PreviewMouseDown">
+        Margin="20" Height="200" Width="200" Background="#34495e" PreviewMouseDown="Grid_PreviewMouseDown">
     <Grid.RowDefinitions>
         <RowDefinition Height="0.2*"/>
         <RowDefinition/>
