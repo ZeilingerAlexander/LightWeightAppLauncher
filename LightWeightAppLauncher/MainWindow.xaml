@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LightWeightAppLauncher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="1000" AllowsTransparency="True" WindowStyle="None" Background="Transparent" MouseLeftButtonDown="Window_DragMoveOnMouseDown">
+        Title="MainWindow" Height="550" Width="1000" AllowsTransparency="True" WindowStyle="None" Background="Transparent" MouseLeftButtonDown="Window_DragMoveOnMouseDown" Closed="Window_Closed">
     <Border CornerRadius="5" Background="{StaticResource Color_Background}">
         <Grid>
             <Grid.RowDefinitions>

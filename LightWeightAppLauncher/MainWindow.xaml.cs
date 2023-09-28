@@ -39,81 +39,32 @@ namespace LightWeightAppLauncher
 
 
             // Thread for launching with keybinds
-            new Thread(CheckKeyBinds).Start();
+            Thread t = new Thread(StartKeyboardListener);
+            ProcessManager.ActiveThreads.Add(t);
+            t.Start();
         }
 
-        void CheckKeyBinds()
+        /// <summary>
+        /// starts the background keyboard listener for launching apps via keybinds
+        /// </summary>
+        void StartKeyboardListener()
         {
-            /// <summary>
-            /// Checks if any key is pressed and puts that into a list
-            /// </summary>
-            /// <returns></returns>
-            List<Key> IsAnyKeyPressed()
-            {
-                var allPossibleKeys = Enum.GetValues(typeof(Key));
-                List<Key> results = new List<Key>();
-                foreach (var currentKey in allPossibleKeys)
-                {
-                    Key key = (Key)currentKey;
-                    if (key != Key.None)
-                    {
-                        // Use Dispatcher to invoke on the UI thread
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            if (Keyboard.IsKeyDown((Key)currentKey))
-                            {
-                                results.Add((Key)currentKey);
-                            }
-                        });
-                    }
-                }
-                return results;
-            }
-
-            // Contains keys and their expiration date
-            Dictionary<string, DateTime> KeysAndTimestamps = new Dictionary<string, DateTime>();
-
-            // updates the timestamps
-            void UpdateTimestamps()
-            {
-                List<string> KeysToRemove = new List<string>();
-                foreach (KeyValuePair<string, DateTime> keyandTime in KeysAndTimestamps)
-                {
-                    if (DateTime.Now > keyandTime.Value)
-                    {
-                        KeysToRemove.Add(keyandTime.Key);
-                    }
-                }
-                foreach (string keytoremove in KeysToRemove)
-                {
-                    KeysAndTimestamps.Remove(keytoremove);
-                }
-            }
-
             while (true)
             {
-                UpdateTimestamps();
+                InputManager.UpdateTimestamps();
                 if (!useKeybindsToLaunch) { continue; }
-                List<Key> keys = IsAnyKeyPressed();
 
-                if (keys.Count != 0)
+                string? PressedKey = InputManager.GetPressedKeyOrNull();
+                if (PressedKey == null) { return; }
+                if (PressedKey == "CLOSEPROGRAM") {
+                    ProcessManager.DispenseAllThreads();
+                    this.Close(); }
+
+                // try to start the process with associated key
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    // If the key is on cooldown
-                    if (KeysAndTimestamps.Keys.Contains(keys[0].ToString())) { continue; }
-
-                    // If esc close program
-                    if (keys[0] == Key.Escape) { this.Close(); }
-
-                    foreach (Key key in keys)
-                    {
-                        KeysAndTimestamps.Add(key.ToString(), DateTime.Now.Add(TimeSpan.FromSeconds(1)));
-                    }
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        StartProccess(AllKeybindsWithAppPaths.GetValueOrDefault(keys[0].ToString()));
-                    });
-                }
+                    ProcessManager.StartProccess(AllKeybindsWithAppPaths.GetValueOrDefault(PressedKey));
+                });
             }
         }
 
@@ -213,20 +164,7 @@ namespace LightWeightAppLauncher
             appview.ContextMenu.Visibility = Visibility.Visible;
         }
 
-        /// <summary>
-        /// Starts a given process
-        /// </summary>
-        void StartProccess(string path)
-        {
-            try
-            {
-                Process.Start(path);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message + "\n" + ex.StackTrace + "\n" + ex.Source + "\n" + ex.Data);
-            }
-        }
+
 
         private void OpenApplicationClick(object? sender, System.EventArgs e)
         {
@@ -234,7 +172,7 @@ namespace LightWeightAppLauncher
                     int.Parse((sender as FrameworkElement).Tag.ToString())
                         ).Value.Split('|')[0];
 
-            StartProccess(ProcessPath);
+            ProcessManager.StartProccess(ProcessPath);
         }
 
         /// <summary>
@@ -291,6 +229,11 @@ namespace LightWeightAppLauncher
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
             this.Close();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            ProcessManager.DispenseAllThreads();
         }
     }
 }
