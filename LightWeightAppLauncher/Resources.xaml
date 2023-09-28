@@ -34,6 +34,10 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+    <Style x:Key="Textblock_RadioToggleButton" TargetType="TextBlock">
+        <Setter Property="Text" Value="🔘"/>
+        <Setter Property="Foreground" Value="{StaticResource Color_TextImportant}"/>
+    </Style>
     <Style x:Key="Textblock_ExitButton" TargetType="TextBlock">
         <Setter Property="Text" Value="✖"/>
         <Setter Property="Foreground" Value="{StaticResource Color_TextInvalid}"/>

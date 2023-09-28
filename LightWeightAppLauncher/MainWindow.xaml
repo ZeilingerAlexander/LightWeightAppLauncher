@@ -16,44 +16,39 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="0.1*"/>
+                    <ColumnDefinition Width="0.05*"/>
+                    <ColumnDefinition Width="0.05*"/>
+                    <ColumnDefinition Width="0.05*"/>
                 </Grid.ColumnDefinitions>
                 <Viewbox>
                     <TextBlock Foreground="{StaticResource Color_TextNormal}">App Launcher</TextBlock>
                 </Viewbox>
 
-                <!--Search-->
-                <Grid Grid.Column="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="0.1*"/>
-                        <ColumnDefinition Width="0.1*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Style="{StaticResource Textbox_Input}">Search App</TextBox>
-                    <Viewbox Grid.Column="1">
-                        <TextBlock Style="{StaticResource Textblock_SearchButton}"></TextBlock>
-                    </Viewbox>
-                    <!--plus button-->
-                    <Viewbox Grid.Column="2">
-                        <TextBlock Style="{StaticResource Textblock_PlusButton}" PreviewMouseDown="AddApplication"/>
-                    </Viewbox>
-                </Grid>
-               
-                
-                <!--Close Button-->
+
+
+                <!--plus button-->
+                <Viewbox Grid.Column="1">
+                    <TextBlock Style="{StaticResource Textblock_PlusButton}" PreviewMouseDown="AddApplication"/>
+                </Viewbox>
+
+                <!--Toggle button-->
                 <Viewbox Grid.Column="2">
+                    <TextBlock Style="{StaticResource Textblock_RadioToggleButton}" PreviewMouseDown="ToggleKeybindMode"/>
+                </Viewbox>
+
+                <!--Close Button-->
+                <Viewbox Grid.Column="3">
                     <TextBlock Style="{StaticResource Textblock_ExitButton}" PreviewMouseDown="CloseWindow"/>
                 </Viewbox>
 
             </Grid>
-
             <!--Application View-->
             <ScrollViewer x:Name="ApplicationScroller" Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
                 <WrapPanel x:Name="ApplicationPanel" Width="{Binding ElementName=ApplicationScroller, Path=ViewportWidth}">
 
                 </WrapPanel>
             </ScrollViewer>
+
         </Grid>
     </Border>
 </Window>

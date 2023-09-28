@@ -7,6 +7,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+
 namespace LightWeightAppLauncher
 {
     /// <summary>
@@ -26,6 +28,8 @@ namespace LightWeightAppLauncher
         public static readonly string _defaultImagePath = "pack://application:,,,/Images/default.png";
         public static readonly string _configPath = _DirectoryConfigPath + "\\config.hv";
         public static readonly string _DefaultConfigEmptyString = "NONE";
+
+        bool useKeybindsToLaunch = true;
         public MainWindow()
         {
             InitializeComponent();
@@ -66,23 +70,64 @@ namespace LightWeightAppLauncher
                 return results;
             }
 
+            // Contains keys and their expiration date
+            Dictionary<string, DateTime> KeysAndTimestamps = new Dictionary<string, DateTime>();
+
+            // updates the timestamps
+            void UpdateTimestamps()
+            {
+                List<string> KeysToRemove = new List<string>();
+                foreach (KeyValuePair<string, DateTime> keyandTime in KeysAndTimestamps)
+                {
+                    if (DateTime.Now > keyandTime.Value)
+                    {
+                        KeysToRemove.Add(keyandTime.Key);
+                    }
+                }
+                foreach (string keytoremove in KeysToRemove)
+                {
+                    KeysAndTimestamps.Remove(keytoremove);
+                }
+            }
+
             while (true)
             {
+                UpdateTimestamps();
+                if (!useKeybindsToLaunch) { continue; }
                 List<Key> keys = IsAnyKeyPressed();
+
                 if (keys.Count != 0)
                 {
-                    if (keys[0] == Key.Escape)
+                    // If the key is on cooldown
+                    if (KeysAndTimestamps.Keys.Contains(keys[0].ToString())) { continue; }
+
+                    // If esc close program
+                    if (keys[0] == Key.Escape) { this.Close(); }
+
+                    foreach (Key key in keys)
                     {
-                        this.Close();
+                        KeysAndTimestamps.Add(key.ToString(), DateTime.Now.Add(TimeSpan.FromSeconds(1)));
                     }
-                    // Use Dispatcher to invoke on the UI thread
+
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         StartProccess(AllKeybindsWithAppPaths.GetValueOrDefault(keys[0].ToString()));
                     });
                 }
             }
+        }
 
+
+
+        /// <summary>
+        /// Whenever user wants to toggle using keybinds to launch apps
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToggleKeybindMode(object sender, MouseButtonEventArgs e)
+        {
+            useKeybindsToLaunch = !useKeybindsToLaunch;
+            (sender as TextBlock).Foreground = useKeybindsToLaunch ? FindResource("Color_TextImportant") as Brush : FindResource("Color_TextInvalid") as Brush;
         }
 
         void LoadConfig()
