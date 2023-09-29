@@ -18,11 +18,11 @@ namespace LightWeightAppLauncher
         /// <summary>
         /// Contains all keybinds with their app paths, dont directly modify this, only on loading
         /// </summary>
-        Dictionary<string, string> AllKeybindsWithAppPaths = new Dictionary<string, string>();
+        Dictionary<string, string> AllKeybindsWithAppPaths = new();
         /// <summary>
         /// Contains all ids and their source paths
         /// </summary>
-        Dictionary<int, string> AllSourcePaths = new Dictionary<int, string>();
+        Dictionary<int, string> AllSourcePaths = new();
         static readonly string _DirectoryConfigPath = Directory.GetCurrentDirectory().ToString() + "\\HV_AppLauncher";
         public static readonly string _defaultImagePath = "pack://application:,,,/Images/default.png";
         public static readonly string _configPath = _DirectoryConfigPath + "\\config.hv";
@@ -40,7 +40,7 @@ namespace LightWeightAppLauncher
 
 
             // Thread for launching with keybinds
-            Thread t = new Thread(StartKeyboardListener);
+            Thread t = new(StartKeyboardListener);
             ProcessManager.ActiveThreads.Add(t);
             t.Start();
         }
@@ -66,7 +66,11 @@ namespace LightWeightAppLauncher
                 // try to start the process with associated key
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    ProcessManager.StartProccess(AllKeybindsWithAppPaths.GetValueOrDefault(PressedKey));
+                    string? prcspath = AllKeybindsWithAppPaths.GetValueOrDefault(PressedKey);
+                    if (prcspath != null)
+                    {
+                        ProcessManager.StartProccess(prcspath);
+                    }
                 });
             }
         }
@@ -81,7 +85,11 @@ namespace LightWeightAppLauncher
         private void ToggleKeybindMode(object sender, MouseButtonEventArgs e)
         {
             useKeybindsToLaunch = !useKeybindsToLaunch;
-            (sender as TextBlock).Foreground = useKeybindsToLaunch ? FindResource("Color_TextImportant") as Brush : FindResource("Color_TextInvalid") as Brush;
+            TextBlock? tbx = (sender as TextBlock);
+            if (tbx != null)
+            {
+                tbx.Foreground = useKeybindsToLaunch ? FindResource("Color_TextImportant") as Brush : FindResource("Color_TextInvalid") as Brush;
+            }
         }
 
         void LoadConfig()
@@ -89,17 +97,20 @@ namespace LightWeightAppLauncher
             AllSourcePaths.Clear();
             AllKeybindsWithAppPaths.Clear();
             int CurrentIndex = 0;
-            List<string> lines = new List<string>();
-            using (StreamReader reader = new StreamReader(_configPath))
+            List<string> lines = new();
+            using (StreamReader reader = new(_configPath))
             {
                 while (!reader.EndOfStream)
                 {
-                    string line = reader.ReadLine();
+                    string? line = reader.ReadLine();
                     if (line == null)
                     {
                         break;
                     }
-                    lines.Add(line);
+                    if (line != null)
+                    {
+                        lines.Add(line);
+                    }
                 }
             }
 
@@ -112,12 +123,10 @@ namespace LightWeightAppLauncher
         }
         void WriteConfig()
         {
-            using (StreamWriter writer = new StreamWriter(_configPath))
+            using StreamWriter writer = new(_configPath);
+            foreach (string strToWrite in AllSourcePaths.Values)
             {
-                foreach (string strToWrite in AllSourcePaths.Values)
-                {
-                    writer.WriteLine(strToWrite);
-                }
+                writer.WriteLine(strToWrite);
             }
         }
         /// <summary>
@@ -141,15 +150,19 @@ namespace LightWeightAppLauncher
                 string Keybind = SplittedPathAndImage[2];
 
                 // Create App View
-                ApplicationItemView applicationView = new ApplicationItemView(App_Path, App_ImagePath, Keybind);
-                applicationView.Tag = ID_PathAndImage.Key;
+                ApplicationItemView applicationView = new(App_Path, App_ImagePath, Keybind)
+                {
+                    Tag = ID_PathAndImage.Key
+                };
                 applicationView.app_OpenApp += OpenApplicationClick;
                 applicationView.app_OpenContextMenu += OpenApplicationContextMenuClick;
 
                 // Add Context Menu for deletion
-                MenuItem dltMenuItem = new MenuItem();
-                dltMenuItem.Header = "Delete";
-                dltMenuItem.Tag = ID_PathAndImage.Key;
+                MenuItem dltMenuItem = new()
+                {
+                    Header = "Delete",
+                    Tag = ID_PathAndImage.Key
+                };
                 dltMenuItem.Click += DeleteAppClick;
                 applicationView.ContextMenu = new ContextMenu();
                 applicationView.ContextMenu.Items.Add(dltMenuItem);
@@ -166,9 +179,12 @@ namespace LightWeightAppLauncher
         /// <param name="e"></param>
         private void DeleteAppClick(object sender, RoutedEventArgs e)
         {
-            string ID = (sender as FrameworkElement).Tag.ToString();
-            AllSourcePaths.Remove(int.Parse(ID));
-            UpdateConfigAndView();
+            string? ID = (sender as FrameworkElement)?.Tag.ToString();
+            if (ID != null)
+            {
+                AllSourcePaths.Remove(int.Parse(ID));
+                UpdateConfigAndView();
+            }
         }
 
         /// <summary>
@@ -179,29 +195,32 @@ namespace LightWeightAppLauncher
         /// <exception cref="InvalidDataException"></exception>
         private void OpenApplicationContextMenuClick(object? sender, System.EventArgs e)
         {
-            ApplicationItemView appview = sender as ApplicationItemView;
-            if (appview == null)
+            if (sender is ApplicationItemView appview)
             {
-                throw new InvalidDataException(nameof(appview));
+                appview.ContextMenu.Visibility = Visibility.Visible;
             }
-            appview.ContextMenu.Visibility = Visibility.Visible;
         }
 
 
 
         private void OpenApplicationClick(object? sender, System.EventArgs e)
         {
-            string ProcessPath = AllSourcePaths.ElementAt(
-                    int.Parse((sender as FrameworkElement).Tag.ToString())
-                        ).Value.Split('|')[0];
-
-            ProcessManager.StartProccess(ProcessPath);
+            string? tag = (sender as FrameworkElement)?.Tag.ToString();
+            if (tag != null)
+            {
+                int? SourcePathID = int.Parse(tag);
+                if (SourcePathID != null)
+                {
+                    string ProcessPath = AllSourcePaths.ElementAt((Index)SourcePathID).Value.Split('|')[0];
+                    ProcessManager.StartProccess(ProcessPath);
+                }
+            }
         }
 
         /// <summary>
         /// Validates the config file, if it doesnt exist it creates it
         /// </summary>
-        void ValidateConfigFile()
+        static void ValidateConfigFile()
         {
             if (!Directory.Exists(_DirectoryConfigPath))
             {
@@ -223,7 +242,7 @@ namespace LightWeightAppLauncher
             {
                 return;
             }
-            AddApplicationWindow addApplicationWindow = new AddApplicationWindow();
+            AddApplicationWindow addApplicationWindow = new();
             addApplicationWindow.Save += AddNewApp_Save;
             addApplicationWindow.Show();
         }
@@ -235,8 +254,7 @@ namespace LightWeightAppLauncher
         /// <param name="e"></param>
         private void AddNewApp_Save(object? sender, System.EventArgs e)
         {
-            AddApplicationWindow? wd = sender as AddApplicationWindow;
-            if (wd == null)
+            if (sender is not AddApplicationWindow wd)
             {
                 return;
             }
