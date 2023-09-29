@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -55,10 +54,12 @@ namespace LightWeightAppLauncher
                 if (!useKeybindsToLaunch) { continue; }
 
                 string? PressedKey = InputManager.GetPressedKeyOrNull();
-                if (PressedKey == null) { return; }
-                if (PressedKey == "CLOSEPROGRAM") {
+                if (PressedKey == null) { continue; }
+                if (PressedKey == "CLOSEPROGRAM")
+                {
                     ProcessManager.DispenseAllThreads();
-                    this.Close(); }
+                    this.Close();
+                }
 
                 // try to start the process with associated key
                 Application.Current.Dispatcher.Invoke(() =>
@@ -86,7 +87,21 @@ namespace LightWeightAppLauncher
             AllSourcePaths.Clear();
             AllKeybindsWithAppPaths.Clear();
             int CurrentIndex = 0;
-            foreach (string str in File.ReadLines(_configPath))
+            List<string> lines = new List<string>();
+            using (StreamReader reader = new StreamReader(_configPath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string line = reader.ReadLine();
+                    if (line == null)
+                    {
+                        break;
+                    }
+                    lines.Add(line);
+                }
+            }
+
+            foreach (string str in lines)
             {
                 AllSourcePaths.Add(CurrentIndex, str);
                 AllKeybindsWithAppPaths.Add(str.Split('|')[2], str.Split('|')[0]);
@@ -95,7 +110,13 @@ namespace LightWeightAppLauncher
         }
         void WriteConfig()
         {
-            File.WriteAllLines(_configPath, AllSourcePaths.Values);
+            using (StreamWriter writer = new StreamWriter(_configPath))
+            {
+                foreach (string strToWrite in AllSourcePaths.Values)
+                {
+                    writer.WriteLine(strToWrite);
+                }
+            }
         }
         /// <summary>
         /// Updates config and view by first wrting config then loading all apps
