@@ -28,6 +28,8 @@ namespace LightWeightAppLauncher
         public static readonly string _configPath = _DirectoryConfigPath + "\\config.hv";
         public static readonly string _DefaultConfigEmptyString = "NONE";
 
+
+        public static bool abort = false;
         bool useKeybindsToLaunch = true;
         public MainWindow()
         {
@@ -48,7 +50,7 @@ namespace LightWeightAppLauncher
         /// </summary>
         void StartKeyboardListener()
         {
-            while (true)
+            while (!abort)
             {
                 InputManager.UpdateTimestamps();
                 if (!useKeybindsToLaunch) { continue; }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace LightWeightAppLauncher
 {
@@ -16,10 +13,14 @@ namespace LightWeightAppLauncher
         public static List<Thread> ActiveThreads = new List<Thread>();
         public static async void DispenseAllThreads()
         {
-            foreach (Thread t in ActiveThreads)
+            MainWindow.abort = true;
+            foreach (Thread thread in ActiveThreads)
             {
-                t.Abort();
-                ActiveThreads.Remove(t);
+                try
+                {
+                    thread.Abort();
+                }
+                catch (ThreadAbortException) { }
             }
         }
         /// <summary>
