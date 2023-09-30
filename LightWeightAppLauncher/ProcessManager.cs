@@ -14,14 +14,6 @@ namespace LightWeightAppLauncher
         public static async void DispenseAllThreads()
         {
             MainWindow.abort = true;
-            foreach (Thread thread in ActiveThreads)
-            {
-                try
-                {
-                    thread.Abort();
-                }
-                catch (ThreadAbortException) { }
-            }
         }
         /// <summary>
         /// Starts a given process
