@@ -112,6 +112,7 @@ namespace LightWeightAppLauncher
                         lines.Add(line);
                     }
                 }
+                reader.Close();
             }
 
             foreach (string str in lines)
@@ -123,11 +124,14 @@ namespace LightWeightAppLauncher
         }
         void WriteConfig()
         {
-            using StreamWriter writer = new(_configPath);
-            foreach (string strToWrite in AllSourcePaths.Values)
+            using (StreamWriter writer = new(_configPath))
             {
-                writer.WriteLine(strToWrite);
-            }
+                foreach (string strToWrite in AllSourcePaths.Values)
+                {
+                    writer.WriteLine(strToWrite);
+                }
+                writer.Close();
+            };
         }
         /// <summary>
         /// Updates config and view by first wrting config then loading all apps
@@ -228,7 +232,8 @@ namespace LightWeightAppLauncher
             }
             if (!File.Exists(_configPath))
             {
-                File.Create(_configPath);
+                FileStream fstream = File.Create(_configPath);
+                fstream.Close();
             }
         }
         /// <summary>
