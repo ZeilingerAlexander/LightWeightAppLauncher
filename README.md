@@ -1,4 +1,4 @@
-# 🚀 AwesomeAppLauncher 🚀
+# 🚀 LightWeightAppLauncher 🚀
 
 [![Blazing Fast](https://img.shields.io/badge/speed-blazing%20fast-red.svg)](https://github.com/ZeilingerAlexander/LightWeightAppLauncher)
 [![Super Cool](https://img.shields.io/badge/coolness-over%209000-blue.svg)](https://github.com/ZeilingerAlexander/LightWeightAppLauncher)
